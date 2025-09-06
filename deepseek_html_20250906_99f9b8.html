@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulo Iscrizione Corsi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #3498db;
+            --primary-light: #e7f2fa;
+            --primary-dark: #2980b9;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --gray-light: #f8f9fa;
+            --gray: #95a5a6;
+            --dark: #2c3e50;
+            --border-radius: 12px;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff, #d9e6ff);
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            color: var(--dark);
+        }
+        
+        .container {
+            flex: 1;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            background-color: var(--gray-light);
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            border: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:active {
+            background: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden { 
+            display: none; 
+        }
+        
+        .center { 
+            text-align: center; 
+        }
+        
+        .success-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--success);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+        
+        /* Stile per i corsi */
+        .corsi-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .corso-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+        
+        .corso-option:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .corso-option.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .corso-option.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .selection-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .corso-option.selected .selection-indicator {
+            border-color: var(--primary);
+            background-color: var(--primary);
+        }
+        
+        .corso-option.selected .selection-indicator::after {
+            content: "";
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+        }
+        
+        .corso-info {
+            flex-grow: 1;
+        }
+        
+        .corso-titolo {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            font-size: 1.1rem;
+        }
+        
+        .corso-posti {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .corso-option.disabled .corso-posti {
+            color: var(--danger);
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 1rem;
+            color: var(--gray);
+            font-style: italic;
+        }
+        
+        .retry-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.5rem;
+            }
+            
+            .card {
+                padding: 1.2rem;
+            }
+            
+            .btn {
+                padding: 1.2rem;
+                font-size: 1.2rem;
+            }
+            
+            input {
+                padding: 1.2rem;
+                font-size: 1.1rem;
+            }
+            
+            .corso-option {
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Iscrizione Corsi</h1>
+    </div>
+
+    <div class="container">
+        <div id="main-form">
+            <div class="card">
+                <h2>Modulo Iscrizione Corso</h2>
+                
+                <form id="formCompleto">
+                    <div class="form-group">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" required placeholder="Il tuo nome">
+                        <div class="error-message" id="error-nome">Inserisci un nome valido</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cognome">Cognome</label>
+                        <input type="text" id="cognome" name="cognome" required placeholder="Il tuo cognome">
+                        <div class="error-message" id="error-cognome">Inserisci un cognome valido</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="anno">Anno di nascita</label>
+                        <input type="number" id="anno" name="anno" min="1900" max="2023" placeholder="Es: 2005" required>
+                        <div class="error-message" id="error-anno">Inserisci un anno valido (1900-2023)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Seleziona un corso disponibile</label>
+                        <div class="corsi-container" id="corsiContainer">
+                            <!-- I corsi verranno caricati dinamicamente -->
+                        </div>
+                        <div id="corsiStatus" class="status-message">Caricamento corsi in corso...</div>
+                        <input type="hidden" id="corsoSelezionato" name="corso" required>
+                        <div class="error-message" id="error-corso">Seleziona un corso</div>
+                    </div>
+                    
+                    <div class="loading" id="loadingIscrizione">
+                        <div class="loading-spinner"></div>
+                        <p>Elaborazione in corso...</p>
+                    </div>
+                    
+                    <button type="button" id="btnIscriviti" class="btn btn-primary">Iscriviti</button>
+                </form>
+            </div>
+
+            <!-- Conferma -->
+            <div id="conferma" class="card center hidden">
+                <div class="success-icon">✅</div>
+                <h2>Iscrizione completata!</h2>
+                <p>Grazie per esserti iscritto al corso.</p>
+                <p>Riceverai una email di conferma a breve.</p>
+                <button class="btn btn-success" id="btnChiudi">Chiudi</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2023 - Tutti i diritti riservati</p>
+        </div>
+    </div>
+
+    <script>
+        // URL dello script Google Apps
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzbgpsuWvN9cXaw5-_i7i6MNCeZrATTpG7sa9d1OLDVjE1voYrn2fBNtSoAQptjwp-_yw/exec";
+        
+        // Elementi DOM
+        const mainForm = document.getElementById("main-form");
+        const confermaDiv = document.getElementById("conferma");
+        const corsiContainer = document.getElementById("corsiContainer");
+        const corsiStatus = document.getElementById("corsiStatus");
+        const corsoSelezionatoInput = document.getElementById("corsoSelezionato");
+        const btnIscriviti = document.getElementById("btnIscriviti");
+        const btnChiudi = document.getElementById("btnChiudi");
+        const loadingIscrizione = document.getElementById("loadingIscrizione");
+        
+        // Carica i corsi all'avvio
+        document.addEventListener('DOMContentLoaded', function() {
+            caricaCorsi();
+            
+            // Aggiungi event listener al pulsante
+            btnIscriviti.addEventListener('click', gestisciIscrizione);
+            btnChiudi.addEventListener('click', function() {
+                // Tentativo di chiudere la finestra
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.close();
+                }
+            });
+        });
+        
+        // Funzione per validare i campi
+        function validaCampi() {
+            let valido = true;
+            
+            // Validazione nome
+            const nome = document.getElementById('nome').value.trim();
+            if (!nome) {
+                document.getElementById('error-nome').style.display = 'block';
+                document.getElementById('nome').style.borderColor = '#dc3545';
+                valido = false;
+            } else {
+                document.getElementById('error-nome').style.display = 'none';
+                document.getElementById('nome').style.borderColor = '#ddd';
+            }
+            
+            // Validazione cognome
+            const cognome = document.getElementById('cognome').value.trim();
+            if (!cognome) {
+                document.getElementById('error-cognome').style.display = 'block';
+                document.getElementById('cognome').style.borderColor = '#dc3545';
+                valido = false;
+            } else {
+                document.getElementById('error-cognome').style.display = 'none';
+                document.getElementById('cognome').style.borderColor = '#ddd';
+            }
+            
+            // Validazione anno
+            const anno = document.getElementById('anno').value;
+            const year = parseInt(anno);
+            const currentYear = new Date().getFullYear();
+            if (isNaN(year) || year < 1900 || year > currentYear) {
+                document.getElementById('error-anno').style.display = 'block';
+                document.getElementById('anno').style.borderColor = '#dc3545';
+                valido = false;
+            } else {
+                document.getElementById('error-anno').style.display = 'none';
+                document.getElementById('anno').style.borderColor = '#ddd';
+            }
+            
+            // Validazione corso
+            const corso = corsoSelezionatoInput.value;
+            if (!corso) {
+                document.getElementById('error-corso').style.display = 'block';
+                valido = false;
+            } else {
+                document.getElementById('error-corso').style.display = 'none';
+            }
+            
+            return valido;
+        }
+        
+        // Funzione per caricare i corsi
+        function caricaCorsi() {
+            corsiContainer.innerHTML = '';
+            corsiStatus.textContent = 'Caricamento corsi in corso...';
+            corsiStatus.style.display = 'block';
+            
+            fetch(scriptURL)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Errore di rete');
+                    }
+                    return res.json();
+                })
+                .then(corsi => {
+                    corsiStatus.style.display = 'none';
+                    
+                    if (corsi && corsi.length > 0) {
+                        let corsiDisponibili = 0;
+                        
+                        corsi.forEach(c => {
+                            if (c && c.length >= 2) {
+                                let nome = c[0];
+                                let posti = Number(c[1]);
+                                
+                                const corsoOption = document.createElement('div');
+                                corsoOption.className = 'corso-option';
+                                corsoOption.setAttribute('data-value', nome);
+                                
+                                if (posti <= 0) {
+                                    corsoOption.classList.add('disabled');
+                                } else {
+                                    corsiDisponibili++;
+                                }
+                                
+                                corsoOption.innerHTML = `
+                                    <div class="selection-indicator"></div>
+                                    <div class="corso-info">
+                                        <div class="corso-titolo">${nome}</div>
+                                        <div class="corso-posti">${posti > 0 ? 
+                                            `${posti} posto${posti !== 1 ? 'i' : ''} disponibili` : 
+                                            'Posti esauriti'}</div>
+                                    </div>
+                                `;
+                                
+                                if (posti > 0) {
+                                    corsoOption.addEventListener('click', function() {
+                                        // Deseleziona tutte le opzioni
+                                        document.querySelectorAll('.corso-option').forEach(opt => {
+                                            opt.classList.remove('selected');
+                                        });
+                                        
+                                        // Seleziona l'opzione corrente
+                                        this.classList.add('selected');
+                                        corsoSelezionatoInput.value = nome;
+                                        
+                                        // Rimuovi eventuale messaggio di errore
+                                        document.getElementById('error-corso').style.display = 'none';
+                                    });
+                                }
+                                
+                                corsiContainer.appendChild(corsoOption);
+                            }
+                        });
+                        
+                        if (corsiDisponibili === 0) {
+                            corsiStatus.textContent = 'Nessun corso disponibile al momento';
+                            corsiStatus.style.display = 'block';
+                        }
+                    } else {
+                        corsiStatus.textContent = 'Nessun corso disponibile al momento';
+                        corsiStatus.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error('Errore nel caricamento corsi:', err);
+                    corsiStatus.innerHTML = 'Errore nel caricamento dei corsi. <button class="retry-btn" id="retryBtn">Riprova</button>';
+                    corsiStatus.style.display = 'block';
+                    
+                    document.getElementById('retryBtn').addEventListener('click', caricaCorsi);
+                });
+        }
+        
+        // Funzione per gestire l'iscrizione
+        function gestisciIscrizione() {
+            if (!validaCampi()) {
+                return;
+            }
+            
+            // Raccogli i dati
+            const nome = document.getElementById('nome').value.trim();
+            const cognome = document.getElementById('cognome').value.trim();
+            const anno = document.getElementById('anno').value;
+            const corso = corsoSelezionatoInput.value;
+            
+            // Mostra il loading
+            loadingIscrizione.style.display = 'block';
+            btnIscriviti.disabled = true;
+
+            // Prepara i dati
+            const dati = new URLSearchParams();
+            dati.append("nome", nome);
+            dati.append("cognome", cognome);
+            dati.append("anno", anno);
+            dati.append("corso", corso);
+
+            // Invia i dati
+            fetch(scriptURL, { 
+                method: "POST", 
+                body: dati 
+            })
+            .then(res => res.text())
+            .then(resp => {
+                loadingIscrizione.style.display = 'none';
+                btnIscriviti.disabled = false;
+                
+                if (resp === "OK") {
+                    // Successo - mostra conferma
+                    mainForm.classList.add("hidden");
+                    confermaDiv.classList.remove("hidden");
+                } else if (resp === "FULL") {
+                    alert("Posti esauriti per questo corso! Scegline un altro.");
+                    caricaCorsi(); // Ricarica i corsi
+                } else if (resp === "DUPLICATO") {
+                    alert("Sei già iscritto a un corso con questi dati!");
+                } else {
+                    alert("Errore durante l'iscrizione! Riprova più tardi.");
+                }
+            })
+            .catch(err => {
+                console.error('Errore:', err);
+                loadingIscrizione.style.display = 'none';
+                btnIscriviti.disabled = false;
+                alert("Errore di connessione! Riprova più tardi.");
+            });
+        }
+    </script>
+</body>
+</html>
